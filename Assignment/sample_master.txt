@@ -1,0 +1,11 @@
+foo.example.com.     CNAME  bar.example.com.
+d.gtld-servers.net.  A      192.31.80.30
+foobar.example.com.  A      192.0.2.23
+bar.example.com.     CNAME  foobar.example.com.
+.                    NS     b.root-servers.net.
+a.root-servers.net.  A      198.41.0.4
+example.com.         A      93.184.215.14
+foobar.example.com.  A      192.0.2.24
+com.                 NS     d.gtld-servers.net.
+www.metalhead.com.   CNAME  metalhead.com.
+.                    NS     a.root-servers.net.
