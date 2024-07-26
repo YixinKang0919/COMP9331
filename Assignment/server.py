@@ -20,8 +20,11 @@ def main():
         server_port = int(sys.argv[1])
     except ValueError:
         sys.exit('Error: server_port must be an integer.')
-
-    server = Server("master.txt", server_port)
+        
+    try:
+        server = Server("master.txt", server_port)
+    except FileNotFoundError:
+        sys.exit('File master.txt is not found \nPlease make sure the sourse file is named as master.txt')
     
     try:
         server.run()
@@ -94,24 +97,24 @@ class Server:
             domain_parts = domain.split('.')
             message += '\n' + 'AUTHORITY SECTION' + '\n'
             for i in range(1, len(domain_parts)):
-                for j in range(i, len(domain_parts)):
+                ancestor = domain_parts[i] + '.'
+                for j in range(i+1, len(domain_parts)-1):
                     # find the first ancestor and then break the for loop
-                    ancestor = domain_parts[j] + '.'
-                    if ancestor in self.cache and 'NS' in self.cache[ancestor]:
-                        nss = self.cache[ancestor]['NS']
-                        for ns in nss:
-                            message += ancestor + ' ' + 'NS' + ' ' + ns + '\n'
-                        # check if there is a corresponding IP address recorded
-                        for ns in nss:
-                            if ns in self.cache and 'A' in self.cache[ns]:
-                                message += '\n' + 'ADDITIONAL SECTION' + '\n'
-                                break
-                        for ns in nss:
-                            if ns in self.cache and 'A' in self.cache[ns]:
-                                values = self.cache[ns]['A']
-                                for value in values:
-                                    message += ns + ' ' + 'A' + ' ' + value + '\n'
-                    break
+                    ancestor += domain_parts[j] + '.'
+                if ancestor in self.cache and 'NS' in self.cache[ancestor]:
+                    nss = self.cache[ancestor]['NS']
+                    for ns in nss:
+                        message += ancestor + ' ' + 'NS' + ' ' + ns + '\n'
+                    # check if there is a corresponding IP address recorded
+                    for ns in nss:
+                        if ns in self.cache and 'A' in self.cache[ns]:
+                            message += '\n' + 'ADDITIONAL SECTION' + '\n'
+                            break
+                    for ns in nss:
+                        if ns in self.cache and 'A' in self.cache[ns]:
+                            values = self.cache[ns]['A']
+                            for value in values:
+                                message += ns + ' ' + 'A' + ' ' + value + '\n'
                 break
             return message
                             
@@ -161,7 +164,7 @@ class Server:
         end_time = end_time.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         
         # log
-        print(f'{end_time} rcv {addr[1]}: {header} {domain} {record_type}')
+        print(f'{end_time} snd {addr[1]}: {header} {domain} {record_type}')
         
         
 if __name__ == '__main__':
